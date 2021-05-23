@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class FruitController {
 
   @Autowired
-  private SpringFruitRepository fruitRepository;
+  SpringFruitRepository fruitRepository;
 
   @GetMapping
   public List<Fruit> fruits(@RequestParam("season") String season) {

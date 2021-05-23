@@ -1,6 +1,7 @@
 package com.redhat.developers;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -14,19 +15,26 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+
 @Path("/fruit")
 public class FruitResource {
 
   @Inject
   FruitRepository fruitRepository;
 
+  @RestClient
+  FruityViceService fruityViceService;
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public List<Fruit> fruits(@QueryParam("season") String season) {
+  public List<FruitDTO> fruits(@QueryParam("season") String season) {
     if (season != null) {
-      return fruitRepository.findBySeason(season);
+      return Fruit.findBySeason(season).stream()
+          .map(fruit -> FruitDTO.of(fruit, fruityViceService.getFruitByName(fruit.name))).collect(Collectors.toList());
     }
-    return Fruit.listAll();
+    return Fruit.<Fruit>listAll().stream()
+        .map(fruit -> FruitDTO.of(fruit, fruityViceService.getFruitByName(fruit.name))).collect(Collectors.toList());
   }
 
   @Transactional
